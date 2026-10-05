@@ -65,6 +65,7 @@ public class TranslateService extends Service {
 
     private FrameLayout overlayRoot;
     private TextView scanButton;
+    private WindowManager.LayoutParams scanButtonParams;
     private final Map<String, OverlayEntry> entries = new HashMap<>();
 
     private TextRecognizer recognizer;
@@ -138,8 +139,13 @@ public class TranslateService extends Service {
                     (MediaProjectionManager) getSystemService(MEDIA_PROJECTION_SERVICE);
             projection = mpm.getMediaProjection(result, data);
             setupCapture();
-            createOverlayRoot();
-            showFloatingButton();
+            try {
+                createOverlayRoot();
+                showFloatingButton();
+            } catch (Throwable t) {
+                showErrorNotification("Overlay gagal: " + t.getClass().getSimpleName());
+                stopSelf();
+            }
         }
 
         return START_NOT_STICKY;
@@ -182,7 +188,12 @@ public class TranslateService extends Service {
         scanButton.setTextColor(Color.WHITE);
         scanButton.setTextSize(TypedValue.COMPLEX_UNIT_SP, 18);
         scanButton.setGravity(Gravity.CENTER);
-        scanButton.setBackgroundColor(0xE61B75D1);
+        android.graphics.drawable.GradientDrawable buttonBg =
+                new android.graphics.drawable.GradientDrawable();
+        buttonBg.setColor(0xEE1976D2);
+        buttonBg.setShape(android.graphics.drawable.GradientDrawable.OVAL);
+        buttonBg.setStroke(dp(2), 0xFFFFFFFF);
+        scanButton.setBackground(buttonBg);
         scanButton.setElevation(dp(8));
 
         scanButton.setOnTouchListener(new View.OnTouchListener() {
@@ -234,9 +245,15 @@ public class TranslateService extends Service {
 
         p.gravity = Gravity.TOP | Gravity.RIGHT;
         p.x = dp(18);
-        p.y = dp(80);
+        p.y = dp(90);
+        scanButtonParams = p;
 
-        wm.addView(scanButton, p);
+        try {
+            wm.addView(scanButton, p);
+        } catch (Throwable t) {
+            showErrorNotification("Tidak bisa menampilkan tombol T. Cek izin Tampil di atas aplikasi.");
+            throw t;
+        }
     }
 
     private void requestScan() {
@@ -481,6 +498,21 @@ public class TranslateService extends Service {
         if (overlayRoot == null) return;
         overlayRoot.removeAllViews();
         entries.clear();
+    }
+
+    private void showErrorNotification(String message) {
+        try {
+            NotificationManager nm =
+                    (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+            Notification n = new Notification.Builder(this, CHANNEL)
+                    .setContentTitle("Tian Game Translator")
+                    .setContentText(message)
+                    .setStyle(new Notification.BigTextStyle().bigText(message))
+                    .setSmallIcon(android.R.drawable.ic_dialog_alert)
+                    .setOngoing(true)
+                    .build();
+            nm.notify(9012, n);
+        } catch (Throwable ignored) {}
     }
 
     private void finishScan() {
