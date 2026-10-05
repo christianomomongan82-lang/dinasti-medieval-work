@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+
+    <!-- App tile -->
+    <path
+        android:fillColor="#071A33"
+        android:pathData="M18,4 L90,4 Q104,4 104,18 L104,90 Q104,104 90,104 L18,104 Q4,104 4,90 L4,18 Q4,4 18,4 Z" />
+
+    <!-- Main blue translation bubble -->
+    <path
+        android:fillColor="#168FFF"
+        android:pathData="M18,23 Q18,15 26,15 L55,15 Q63,15 63,23 L63,53 Q63,61 55,61 L42,61 L34,71 L34,61 L26,61 Q18,61 18,53 Z" />
+
+    <!-- White T -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M27,25 L54,25 L54,32 L45,32 L45,51 L36,51 L36,32 L27,32 Z" />
+
+    <!-- Translation bubble -->
+    <path
+        android:fillColor="#EAF6FF"
+        android:pathData="M48,49 Q48,42 55,42 L81,42 Q88,42 88,49 L88,76 Q88,83 81,83 L69,83 L62,92 L62,83 L55,83 Q48,83 48,76 Z" />
+
+    <!-- Stylized A -->
+    <path
+        android:fillColor="#0A4B82"
+        android:pathData="M57,51 L64,51 L72,73 L66,73 L64,68 L57,68 L55,73 L49,73 Z M60.5,56.5 L58.5,64 L63,64 Z" />
+
+    <!-- Translation arrow -->
+    <path
+        android:fillColor="#168FFF"
+        android:pathData="M73,52 L84,52 L84,56 L75,56 L75,60 L71,60 L71,56 L73,56 Z" />
+    <path
+        android:fillColor="#168FFF"
+        android:pathData="M80,48 L86,54 L80,60 L80,56 L76,56 L76,52 L80,52 Z" />
+</vector>
