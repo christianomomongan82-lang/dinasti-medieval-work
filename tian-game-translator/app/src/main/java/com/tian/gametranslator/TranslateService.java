@@ -259,7 +259,7 @@ public class TranslateService extends Service {
     }
 
     private String normalize(String s) {
-        return s.replaceAll("\s+", " ").trim();
+        return s.replaceAll("\\s+", " ").trim();
     }
 
     private void showOverlay(String slot, String raw, String translated, Rect box, int captureW, int captureH, long token) {
