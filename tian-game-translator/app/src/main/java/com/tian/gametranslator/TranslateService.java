@@ -139,12 +139,25 @@ public class TranslateService extends Service {
                     (MediaProjectionManager) getSystemService(MEDIA_PROJECTION_SERVICE);
             projection = mpm.getMediaProjection(result, data);
             setupCapture();
+
+            // Create the floating T first. If the result-overlay root has a
+            // device-specific WindowManager problem, it must not prevent the
+            // scan button from appearing.
             try {
-                createOverlayRoot();
                 showFloatingButton();
             } catch (Throwable t) {
-                showErrorNotification("Overlay gagal: " + t.getClass().getSimpleName());
+                showErrorNotification("Tombol T gagal: " + t.getClass().getSimpleName()
+                        + ". Cek izin Tampil di atas aplikasi.");
                 stopSelf();
+                return START_NOT_STICKY;
+            }
+
+            try {
+                createOverlayRoot();
+            } catch (Throwable t) {
+                // Translation result overlays are optional; keep the service
+                // and the T button alive so scanning remains usable.
+                showErrorNotification("Overlay teks gagal: " + t.getClass().getSimpleName());
             }
         }
 
