@@ -8,7 +8,6 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.Settings;
-import android.view.Gravity;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -27,8 +26,8 @@ public class MainActivity extends Activity {
 
     private Translator translator;
     private TextView status;
-    private int regionMode = 1; // 0 whole, 1 bottom 45%, 2 center 65%, 3 top 55%
     private Button regionButton;
+    private int regionMode = 1;
 
     @Override protected void onCreate(Bundle b) {
         super.onCreate(b);
@@ -48,30 +47,30 @@ public class MainActivity extends Activity {
         title.setTextColor(Color.WHITE);
         title.setTextSize(24);
         title.setPadding(0, 0, 0, 16);
-        root.addView(title, lp(-1, -2));
+        root.addView(title);
 
         TextView desc = new TextView(this);
-        desc.setText("English → Indonesia\nOCR + translation berjalan di perangkat. Hasil mengikuti posisi teks game.");
+        desc.setText("Mode screenshot manual\nEnglish → Indonesia • tekan tombol T di game untuk mengambil layar sekarang.");
         desc.setTextColor(Color.LTGRAY);
         desc.setTextSize(15);
-        root.addView(desc, lp(-1, -2));
+        root.addView(desc);
 
         status = new TextView(this);
         status.setText("Menyiapkan model terjemahan…");
         status.setTextColor(Color.parseColor("#B8BDC7"));
         status.setTextSize(14);
         status.setPadding(0, 20, 0, 18);
-        root.addView(status, lp(-1, -2));
+        root.addView(status);
 
         Button model = new Button(this);
         model.setText("Download model English → Indonesia");
         model.setOnClickListener(v -> prepareTranslator(true));
-        root.addView(model, lp(-1, -2));
+        root.addView(model);
 
         regionButton = new Button(this);
         regionButton.setText(regionLabel());
         regionButton.setOnClickListener(v -> cycleRegion());
-        root.addView(regionButton, lp(-1, -2));
+        root.addView(regionButton);
 
         Button overlay = new Button(this);
         overlay.setText("1. Izinkan overlay");
@@ -83,19 +82,19 @@ public class MainActivity extends Activity {
                 Toast.makeText(this, "Overlay sudah diizinkan", Toast.LENGTH_SHORT).show();
             }
         });
-        root.addView(overlay, lp(-1, -2));
+        root.addView(overlay);
 
         Button start = new Button(this);
-        start.setText("2. Mulai translator");
+        start.setText("2. Mulai screenshot translator");
         start.setOnClickListener(v -> startCapture());
-        root.addView(start, lp(-1, -2));
+        root.addView(start);
 
         TextView note = new TextView(this);
-        note.setText("Untuk dialog game, mulai dengan area BAWAH 45%. Jika dialog ada di tempat lain, tekan tombol area. Teks lama dipertahankan beberapa detik saat OCR gagal sesaat.");
+        note.setText("Tidak memakai Accessibility. Setelah aktif, kembali ke game. Tekan tombol T yang mengambang setiap kali ingin menerjemahkan layar. Hasil lama tetap ada sampai scan baru berhasil.");
         note.setTextColor(Color.parseColor("#B8BDC7"));
         note.setTextSize(13);
         note.setPadding(0, 20, 0, 0);
-        root.addView(note, lp(-1, -2));
+        root.addView(note);
 
         setContentView(root);
     }
@@ -115,10 +114,6 @@ public class MainActivity extends Activity {
         regionButton.setText(regionLabel());
     }
 
-    private LinearLayout.LayoutParams lp(int w, int h) {
-        return new LinearLayout.LayoutParams(w, h);
-    }
-
     private void prepareTranslator(boolean showToast) {
         if (translator == null) {
             TranslatorOptions options = new TranslatorOptions.Builder()
@@ -130,7 +125,7 @@ public class MainActivity extends Activity {
         status.setText("Mengunduh/mengecek model English → Indonesia…");
         translator.downloadModelIfNeeded(new DownloadConditions.Builder().build())
                 .addOnSuccessListener(v -> {
-                    status.setText("Model siap. Bisa mulai translator.");
+                    status.setText("Model siap. Bisa mulai.");
                     if (showToast) Toast.makeText(this, "Model siap", Toast.LENGTH_SHORT).show();
                 })
                 .addOnFailureListener(e -> {
@@ -141,22 +136,30 @@ public class MainActivity extends Activity {
 
     private void startCapture() {
         if (Build.VERSION.SDK_INT >= 23 && !Settings.canDrawOverlays(this)) {
-            Toast.makeText(this, "Aktifkan izin overlay dulu", Toast.LENGTH_LONG).show();
+            Toast.makeText(this, "Aktifkan overlay dulu", Toast.LENGTH_LONG).show();
             return;
         }
-        MediaProjectionManager mpm = (MediaProjectionManager) getSystemService(MEDIA_PROJECTION_SERVICE);
+        MediaProjectionManager mpm =
+                (MediaProjectionManager) getSystemService(MEDIA_PROJECTION_SERVICE);
         startActivityForResult(mpm.createScreenCaptureIntent(), REQ_CAPTURE);
     }
 
     @Override protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode != REQ_CAPTURE || data == null || resultCode != RESULT_OK) return;
+
         Intent i = new Intent(this, TranslateService.class)
                 .putExtra("resultCode", resultCode)
                 .putExtra("data", data)
                 .putExtra("regionMode", regionMode);
-        if (Build.VERSION.SDK_INT >= 26) startForegroundService(i); else startService(i);
-        Toast.makeText(this, "Translator aktif. Buka game.", Toast.LENGTH_SHORT).show();
+
+        if (Build.VERSION.SDK_INT >= 26) {
+            startForegroundService(i);
+        } else {
+            startService(i);
+        }
+
+        Toast.makeText(this, "Translator aktif. Tombol T akan muncul di game.", Toast.LENGTH_SHORT).show();
     }
 
     @Override protected void onDestroy() {
