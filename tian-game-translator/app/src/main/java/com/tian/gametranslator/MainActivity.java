@@ -15,10 +15,10 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.mlkit.common.model.DownloadConditions;
-import com.google.mlkit.translate.TranslateLanguage;
-import com.google.mlkit.translate.Translation;
-import com.google.mlkit.translate.Translator;
-import com.google.mlkit.translate.TranslatorOptions;
+import com.google.mlkit.nl.translate.TranslateLanguage;
+import com.google.mlkit.nl.translate.Translation;
+import com.google.mlkit.nl.translate.Translator;
+import com.google.mlkit.nl.translate.TranslatorOptions;
 
 public class MainActivity extends Activity {
     private static final int REQ_CAPTURE = 7001;
