@@ -8,6 +8,9 @@ on:
       - '.github/workflows/build-tian-game-translator.yml'
     branches: [ main ]
 
+permissions:
+  contents: write
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -25,8 +28,39 @@ jobs:
         with:
           gradle-version: '8.9'
       - name: Build debug APK
-        run: gradle assembleDebug --no-daemon
+        id: build
+        run: |
+          set +e
+          gradle assembleDebug --no-daemon --stacktrace --info 2>&1 | tee ../build-console.log
+          code=${PIPESTATUS[0]}
+          exit $code
+      - name: Save build diagnostics
+        if: failure()
+        working-directory: .
+        run: |
+          {
+            echo "Build failed at $(date -u +"%Y-%m-%dT%H:%M:%SZ")"
+            echo
+            echo "===== ANDROID ENV ====="
+            env | grep -E 'ANDROID|JAVA_HOME|GRADLE' | sort || true
+            echo
+            echo "===== SDK PATH ====="
+            printf 'ANDROID_HOME=%s\n' "${ANDROID_HOME:-}"
+            command -v sdkmanager || true
+            command -v gradle || true
+            if [ -n "${ANDROID_HOME:-}" ]; then ls -la "$ANDROID_HOME" || true; fi
+            echo
+            echo "===== BUILD LOG ====="
+            cat build-console.log 2>/dev/null || true
+          } > build-diagnostics.txt
+          rm -f build-console.log
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add build-diagnostics.txt
+          git commit -m "Add build diagnostics"
+          git push
       - name: Upload APK
+        if: success()
         uses: actions/upload-artifact@v4
         with:
           name: tian-game-translator-v0.2-debug
