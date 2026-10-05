@@ -1,0 +1,26 @@
+plugins { id 'com.android.application' }
+
+android {
+    namespace 'com.tian.gametranslator'
+    compileSdk 35
+
+    defaultConfig {
+        applicationId 'com.tian.gametranslator'
+        minSdk 23
+        targetSdk 35
+        versionCode 2
+        versionName '0.2.0'
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+}
+
+dependencies {
+    implementation 'com.google.mlkit:text-recognition:16.0.1'
+    implementation 'com.google.mlkit:translate:17.0.3'
+}
