@@ -138,6 +138,7 @@ public class TranslateService extends Service {
                     (MediaProjectionManager) getSystemService(MEDIA_PROJECTION_SERVICE);
             projection = mpm.getMediaProjection(result, data);
             setupCapture();
+            createOverlayRoot();
             showFloatingButton();
         }
 
@@ -503,10 +504,6 @@ public class TranslateService extends Service {
 
     private int clamp(int v, int lo, int hi) {
         return Math.max(lo, Math.min(v, hi));
-    }
-
-    @Override public void onCreate() {
-        super.onCreate();
     }
 
     private void createOverlayRoot() {
